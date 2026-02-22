@@ -1,0 +1,64 @@
+{
+  "type": "vector.function",
+  "input_schema": {
+    "type": "array",
+    "description": "An array of code snippets to rank by structural clarity",
+    "minItems": 2,
+    "items": {
+      "type": "string",
+      "description": "A code snippet to evaluate"
+    }
+  },
+  "output_length": {
+    "$starlark": "len(input)"
+  },
+  "input_split": {
+    "$starlark": "[[code] for code in input]"
+  },
+  "input_merge": {
+    "$starlark": "[item[0] for item in input]"
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Which of the following code snippets most clearly and directly reveals its execution path and logical flow? Consider which code makes it immediately obvious how the program works from input to output, with the clearest communication of intent and behavior."
+            }
+          ]
+        }
+      ],
+      "responses": {
+        "$starlark": "[[{'type': 'text', 'text': snippet}] for snippet in input]"
+      },
+      "output": {
+        "$starlark": "output['scores']"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Which of the following code snippets delivers a working solution using the most straightforward approach? Consider which code follows recognizable, conventional patterns that experienced developers would immediately understand, with the simplest and most direct path from input to output—avoiding deep nesting, unnecessary complexity, and confusing control flow."
+            }
+          ]
+        }
+      ],
+      "responses": {
+        "$starlark": "[[{'type': 'text', 'text': snippet}] for snippet in input]"
+      },
+      "output": {
+        "$starlark": "output['scores']"
+      }
+    }
+  ],
+  "description": "Execute-task evaluates and ranks code snippets based on structural clarity—how effectively each reveals its execution path and logical flow. Using precision (clarity of intent) and pragmatism (straightforward patterns), the function scores each snippet to identify the most understandable and maintainable implementations."
+}
